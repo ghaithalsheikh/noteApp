@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:keyboard_actions/keyboard_actions.dart';
-import 'package:note_app/cubit/note_cubit.dart';
+import 'package:note_app/cubit/note_cubite/note_cubit.dart';
 
 import 'package:note_app/models/note_model.dart';
 
@@ -77,11 +77,12 @@ class _NoteChangeTextFeildViewState extends State<NoteChangeTextFeildView> {
             (widget.noteModel.fontWeight != _fontWeight)) ||
         ((content == null && title == null) &&
             (widget.noteModel.fontStyle != _fontStyle))) {
-      BlocProvider.of<NoteCubit>(context).removeItem(
-          noteModel: NoteModel(
-              content: widget.content,
-              title: widget.title,
-              fixedDateTime: widget.dateTime));
+      BlocProvider.of<NoteCubit>(context).removeItem(listNoteModel: [
+        NoteModel(
+            content: widget.content,
+            title: widget.title,
+            fixedDateTime: widget.dateTime)
+      ]);
 
       BlocProvider.of<NoteCubit>(context).addItem(
         noteModel: NoteModel(

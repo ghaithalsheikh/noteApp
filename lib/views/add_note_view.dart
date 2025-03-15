@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:keyboard_actions/keyboard_actions.dart';
-import 'package:note_app/cubit/note_cubit.dart';
+import 'package:note_app/cubit/note_cubite/note_cubit.dart';
 import 'package:note_app/models/note_model.dart';
 
 class NoteAddTextFeildView extends StatefulWidget {

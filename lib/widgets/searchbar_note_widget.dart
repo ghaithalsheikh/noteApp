@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:note_app/cubit/hidden_button_cubit.dart';
-import 'package:note_app/cubit/note_cubit.dart';
+import 'package:note_app/cubit/note_cubite/hidden_button_cubit.dart';
+import 'package:note_app/cubit/note_cubite/note_cubit.dart';
 
 class SearchOfBarNote extends StatefulWidget {
   const SearchOfBarNote({

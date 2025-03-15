@@ -1,14 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:note_app/cubit/hidden_button_cubit.dart';
-import 'package:note_app/cubit/note_cubit.dart';
+import 'package:note_app/cubit/note_cubite/hidden_button_cubit.dart';
+import 'package:note_app/cubit/note_cubite/note_cubit.dart';
+import 'package:note_app/models/note_model.dart';
 import 'package:note_app/views/add_note_view.dart';
+import 'package:note_app/views/changed_note_view.dart';
 import 'package:note_app/widgets/note_container.dart';
 import 'package:note_app/widgets/right_to_left_nav.dart';
 import 'package:note_app/widgets/searchbar_note_widget.dart';
 
-class HomeView extends StatelessWidget {
-  const HomeView({Key? key}) : super(key: key);
+class HomeView extends StatefulWidget {
+  const HomeView({super.key});
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  bool isSelectionMode = false;
+  Set<int> selectedItemsTask = <int>{};
+  bool isHiddenAddButton = false;
+  bool hiddenOnTap = false;
+  List<NoteModel> listNoteModel = [];
+
+  _selectAll({required List countOfItem}) {
+    if (selectedItemsTask.length == countOfItem.length) {
+      selectedItemsTask.clear();
+    } else {
+      selectedItemsTask.addAll(List.generate(countOfItem.length, (i) => i));
+    }
+    isSelectionMode = selectedItemsTask.isNotEmpty;
+  }
+
+  void _toggleSelection(int index, {required NoteModel noteModel}) {
+    setState(() {
+      if (selectedItemsTask.contains(index)) {
+        selectedItemsTask.remove(index);
+      } else {
+        listNoteModel.add(noteModel);
+        selectedItemsTask.add(index);
+      }
+      isSelectionMode = selectedItemsTask.isNotEmpty;
+    });
+  }
+
+  _deleteSelected({required List<NoteModel> listTaskmodel}) {
+    BlocProvider.of<NoteCubit>(context)
+        .removeItem(listNoteModel: listTaskmodel);
+
+    setState(() {
+      selectedItemsTask.clear();
+      isSelectionMode = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,21 +65,6 @@ class HomeView extends StatelessWidget {
       textDirection: TextDirection.ltr,
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: AppBar(
-          toolbarHeight: screenHeight * 0.12,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-          title: Column(
-            children: [
-              Text(
-                'ملاحظات',
-                style: TextStyle(fontSize: fontSizeTitle),
-              ),
-              const SearchOfBarNote(),
-            ],
-          ),
-        ),
         body: BlocBuilder<NoteCubit, NoteState>(
           builder: (context, state) {
             if (state is NoteInitial) {
@@ -43,14 +72,133 @@ class HomeView extends StatelessWidget {
             } else if (state is NoteChangedState) {
               return CustomScrollView(
                 slivers: [
+                  isSelectionMode
+                      ? SliverAppBar(
+                          centerTitle: true,
+                          title: Text('${selectedItemsTask.length} مختارة'),
+                          leading: IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: () {
+                              setState(() {
+                                hiddenOnTap = false;
+                                selectedItemsTask.clear();
+                                isSelectionMode = false;
+                                isHiddenAddButton = false;
+                              });
+                            },
+                          ),
+                          actions: [
+                            IconButton(
+                              icon: selectedItemsTask.length ==
+                                      state.homeList.length
+                                  ? Icon(
+                                      Icons.checklist_rtl_sharp,
+                                      color: Colors.amber,
+                                    )
+                                  : Icon(
+                                      Icons.checklist_rtl_sharp,
+                                    ),
+                              onPressed: () {
+                                _selectAll(countOfItem: state.homeList);
+                                isHiddenAddButton = false;
+                                setState(() {});
+                              },
+                            ),
+                          ],
+                        )
+                      : SliverAppBar(
+                          toolbarHeight: screenHeight * 0.12,
+                          elevation: 0,
+                          scrolledUnderElevation: 0,
+                          backgroundColor:
+                              Theme.of(context).appBarTheme.backgroundColor,
+                          title: Column(
+                            children: [
+                              Text(
+                                'ملاحظات',
+                                style: TextStyle(fontSize: fontSizeTitle),
+                              ),
+                              const SearchOfBarNote(),
+                            ],
+                          ),
+                        ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        return NoteContainer(
-                          title: state.homeList[index].title ?? '',
-                          content: state.homeList[index].content ?? "",
-                          dateTime: state.homeList[index].fixedDateTime,
-                          noteModel: state.homeList[index],
+                        return GestureDetector(
+                          onLongPress: () {
+                            hiddenOnTap = true;
+                            if (!isSelectionMode) {
+                              setState(() => isSelectionMode = true);
+                            }
+                            isHiddenAddButton = true;
+                            _toggleSelection(index,
+                                noteModel: NoteModel(
+                                  title: state.homeList[index].title ?? '',
+                                  content: state.homeList[index].content ?? "",
+                                  fixedDateTime:
+                                      state.homeList[index].fixedDateTime,
+                                ));
+                          },
+                          onTap: () {
+                            if (hiddenOnTap) {
+                              if (selectedItemsTask.isEmpty) {
+                                isHiddenAddButton = false;
+                              }
+                              if (isSelectionMode) {
+                                _toggleSelection(index,
+                                    noteModel: NoteModel(
+                                      title: state.homeList[index].title ?? '',
+                                      content:
+                                          state.homeList[index].content ?? "",
+                                      fixedDateTime:
+                                          state.homeList[index].fixedDateTime,
+                                    ));
+                              }
+                            } else {
+                              Navigator.of(context).push(RightToLeftPageRoute(
+                                builder: (context) => NoteChangeTextFeildView(
+                                  title: state.homeList[index].title ?? '',
+                                  content: state.homeList[index].content ?? "",
+                                  dateTime: state.homeList[index].fixedDateTime,
+                                  noteModel: state.homeList[index],
+                                ),
+                              ));
+                            }
+                          },
+                          child: Stack(
+                            children: [
+                              NoteContainer(
+                                title: state.homeList[index].title ?? '',
+                                content: state.homeList[index].content ?? "",
+                                dateTime: state.homeList[index].fixedDateTime,
+                                noteModel: state.homeList[index],
+                              ),
+                              if (isSelectionMode)
+                                Positioned(
+                                  right: 20,
+                                  top: 25,
+                                  child: Checkbox(
+                                    shape: CircleBorder(),
+                                    checkColor: Colors.white,
+                                    activeColor: Colors.amber,
+                                    value: selectedItemsTask.contains(index),
+                                    onChanged: (_) => _toggleSelection(index,
+                                        noteModel: NoteModel(
+                                          title:
+                                              state.homeList[index].title ?? '',
+                                          content:
+                                              state.homeList[index].content ??
+                                                  "",
+                                          fixedDateTime: state
+                                              .homeList[index].fixedDateTime,
+                                        )),
+                                  ),
+                                )
+                              else
+                                SizedBox(),
+                            ],
+                          ),
                         );
                       },
                       childCount: state.homeList.length,
@@ -129,6 +277,31 @@ class HomeView extends StatelessWidget {
             );
           },
         ),
+        bottomNavigationBar: isSelectionMode
+            ? BottomAppBar(
+                child: Column(
+                  children: [
+                    IconButton(
+                      constraints: BoxConstraints(),
+                      padding: EdgeInsets.all(0),
+                      style: const ButtonStyle(
+                        tapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap, // the '2023' part
+                      ),
+                      icon: Icon(
+                        Icons.delete_outline,
+                        size: 32,
+                      ),
+                      onPressed: () {
+                        _deleteSelected(listTaskmodel: listNoteModel);
+                      },
+                      color: Colors.white,
+                    ),
+                    Text('حذف')
+                  ],
+                ),
+              )
+            : null,
       ),
     );
   }

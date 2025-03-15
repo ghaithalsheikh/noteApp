@@ -46,13 +46,14 @@ class NoteCubit extends Cubit<NoteState> {
     getHomeList();
   }
 
-  void removeItem({required NoteModel noteModel}) async {
-    for (var i = 0; i < box!.length; i++) {
-      NoteModel value = box!.getAt(i);
+  void removeItem({required List<NoteModel> listNoteModel}) async {
+    for (var item in listNoteModel) {
+      for (var i = 0; i < box!.length; i++) {
+        NoteModel value = box!.getAt(i);
 
-      if (value.title == noteModel.title &&
-          value.content == noteModel.content) {
-        await box!.deleteAt(i);
+        if (value.title == item.title && value.content == item.content) {
+          await box!.deleteAt(i);
+        }
       }
     }
     getHomeList();
