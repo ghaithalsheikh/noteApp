@@ -18,29 +18,29 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   bool isSelectionMode = false;
-  Set<int> selectedItemsTask = <int>{};
+  Set<int> selectedItemsNote = <int>{};
   bool isHiddenAddButton = false;
   bool hiddenOnTap = false;
   List<NoteModel> listNoteModel = [];
 
   _selectAll({required List countOfItem}) {
-    if (selectedItemsTask.length == countOfItem.length) {
-      selectedItemsTask.clear();
+    if (selectedItemsNote.length == countOfItem.length) {
+      selectedItemsNote.clear();
     } else {
-      selectedItemsTask.addAll(List.generate(countOfItem.length, (i) => i));
+      selectedItemsNote.addAll(List.generate(countOfItem.length, (i) => i));
     }
-    isSelectionMode = selectedItemsTask.isNotEmpty;
+    isSelectionMode = selectedItemsNote.isNotEmpty;
   }
 
   void _toggleSelection(int index, {required NoteModel noteModel}) {
     setState(() {
-      if (selectedItemsTask.contains(index)) {
-        selectedItemsTask.remove(index);
+      if (selectedItemsNote.contains(index)) {
+        selectedItemsNote.remove(index);
       } else {
         listNoteModel.add(noteModel);
-        selectedItemsTask.add(index);
+        selectedItemsNote.add(index);
       }
-      isSelectionMode = selectedItemsTask.isNotEmpty;
+      isSelectionMode = selectedItemsNote.isNotEmpty;
     });
   }
 
@@ -49,7 +49,7 @@ class _HomeViewState extends State<HomeView> {
         .removeItem(listNoteModel: listTaskmodel);
 
     setState(() {
-      selectedItemsTask.clear();
+      selectedItemsNote.clear();
       isSelectionMode = false;
     });
   }
@@ -75,13 +75,13 @@ class _HomeViewState extends State<HomeView> {
                   isSelectionMode
                       ? SliverAppBar(
                           centerTitle: true,
-                          title: Text('${selectedItemsTask.length} مختارة'),
+                          title: Text('${selectedItemsNote.length} مختارة'),
                           leading: IconButton(
                             icon: Icon(Icons.close),
                             onPressed: () {
                               setState(() {
                                 hiddenOnTap = false;
-                                selectedItemsTask.clear();
+                                selectedItemsNote.clear();
                                 isSelectionMode = false;
                                 isHiddenAddButton = false;
                               });
@@ -89,7 +89,7 @@ class _HomeViewState extends State<HomeView> {
                           ),
                           actions: [
                             IconButton(
-                              icon: selectedItemsTask.length ==
+                              icon: selectedItemsNote.length ==
                                       state.homeList.length
                                   ? Icon(
                                       Icons.checklist_rtl_sharp,
@@ -142,7 +142,7 @@ class _HomeViewState extends State<HomeView> {
                           },
                           onTap: () {
                             if (hiddenOnTap) {
-                              if (selectedItemsTask.isEmpty) {
+                              if (selectedItemsNote.isEmpty) {
                                 isHiddenAddButton = false;
                               }
                               if (isSelectionMode) {
@@ -182,7 +182,7 @@ class _HomeViewState extends State<HomeView> {
                                     shape: CircleBorder(),
                                     checkColor: Colors.white,
                                     activeColor: Colors.amber,
-                                    value: selectedItemsTask.contains(index),
+                                    value: selectedItemsNote.contains(index),
                                     onChanged: (_) => _toggleSelection(index,
                                         noteModel: NoteModel(
                                           title:
@@ -209,14 +209,44 @@ class _HomeViewState extends State<HomeView> {
             } else if (state is SearchNote) {
               return CustomScrollView(
                 slivers: [
+                  SliverAppBar(
+                    toolbarHeight: screenHeight * 0.12,
+                    elevation: 0,
+                    scrolledUnderElevation: 0,
+                    backgroundColor:
+                        Theme.of(context).appBarTheme.backgroundColor,
+                    title: Column(
+                      children: [
+                        Text(
+                          'ملاحظات',
+                          style: TextStyle(fontSize: fontSizeTitle),
+                        ),
+                        const SearchOfBarNote(),
+                      ],
+                    ),
+                  ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        return NoteContainer(
-                          title: state.homeListSearch[index].title,
-                          content: state.homeListSearch[index].content,
-                          dateTime: state.homeListSearch[index].fixedDateTime,
-                          noteModel: state.homeListSearch[index],
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(RightToLeftPageRoute(
+                              builder: (context) => NoteChangeTextFeildView(
+                                title: state.homeListSearch[index].title ?? '',
+                                content:
+                                    state.homeListSearch[index].content ?? "",
+                                dateTime:
+                                    state.homeListSearch[index].fixedDateTime,
+                                noteModel: state.homeListSearch[index],
+                              ),
+                            ));
+                          },
+                          child: NoteContainer(
+                            title: state.homeListSearch[index].title,
+                            content: state.homeListSearch[index].content,
+                            dateTime: state.homeListSearch[index].fixedDateTime,
+                            noteModel: state.homeListSearch[index],
+                          ),
                         );
                       },
                       childCount: state.homeListSearch.length,

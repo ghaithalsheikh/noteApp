@@ -34,7 +34,6 @@ class _SearchOfBarNoteState extends State<SearchOfBarNote> {
     if (!focusNode.hasFocus) {
       BlocProvider.of<HiddenButtonCubit>(context).hiddenAddButton = false;
       BlocProvider.of<HiddenButtonCubit>(context).hiddenButton();
-      _searchController.clear();
     }
   }
 
@@ -56,6 +55,14 @@ class _SearchOfBarNoteState extends State<SearchOfBarNote> {
         ),
         controller: _searchController,
         decoration: InputDecoration(
+          prefixIcon: focusNode.hasFocus
+              ? IconButton(
+                  onPressed: () {
+                    _searchController.clear();
+                    BlocProvider.of<NoteCubit>(context).getSearchtext(text: '');
+                  },
+                  icon: Icon(Icons.close))
+              : SizedBox(),
           hintText: 'البحث عن ملاحظات',
           hintStyle: TextStyle(fontSize: screenWidth * 0.035),
           focusedBorder: const OutlineInputBorder(
@@ -71,6 +78,9 @@ class _SearchOfBarNoteState extends State<SearchOfBarNote> {
                 color: Theme.of(context).searchViewTheme.backgroundColor!),
           ),
         ),
+        onSubmitted: (value) {
+          setState(() {});
+        },
         onChanged: (value) {
           BlocProvider.of<NoteCubit>(context).getSearchtext(text: value);
         },
@@ -79,24 +89,3 @@ class _SearchOfBarNoteState extends State<SearchOfBarNote> {
     );
   }
 }
-
-
-//  setState(() {
-//             isTextFieldActive = value.isNotEmpty;
-//           });
-//           if (value.isEmpty) {
-//             setState(() {
-//               isTextFieldActive = false;
-//             });
-//           }
-//           if (value.contains(RegExp(r'[a-zA-Z]'))) {
-//             // English language detected
-//             setState(() {
-//               _currentTextDirection = ui.TextDirection.ltr;
-//             });
-//           } else if (value.contains(RegExp(r'[\u0600-\u06FF]'))) {
-//             // Arabic language detected
-//             setState(() {
-//               _currentTextDirection = ui.TextDirection.rtl;
-//             });
-//           }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:note_app/cubit/cubit/task_copmeted_cubit.dart';
+import 'package:note_app/cubit/task_completed_cubit/task_copmeted_cubit.dart';
 import 'package:note_app/cubit/note_cubite/hidden_button_cubit.dart';
 import 'package:note_app/cubit/note_cubite/note_cubit.dart';
 import 'package:note_app/cubit/task_cubit/hidden_button_cubit.dart';

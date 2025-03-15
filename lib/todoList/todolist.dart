@@ -70,7 +70,6 @@ class _TodolistState extends State<Todolist> {
 
   void addTask(String task, DateTime dateTime) {
     scheduleNotification('تذكير', task, dateTime);
-    print('success send reminder');
   }
 
   @override
