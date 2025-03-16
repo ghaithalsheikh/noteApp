@@ -213,7 +213,7 @@ class _TaskViewState extends State<TaskView> {
                               return Icon(Icons.keyboard_arrow_down_outlined);
                             },
                           )),
-                Text('Completed')
+                Text('منجزة')
               ],
             ),
             !isHiddenCompleted

@@ -19,6 +19,7 @@ class _SearchOfBarNoteState extends State<SearchOfBarNote> {
   final TextEditingController _searchController = TextEditingController();
   final ui.TextDirection _currentTextDirection = TextDirection.rtl;
   final focusNode = FocusNode();
+  bool isShowIconClose = false;
 
   @override
   void initState() {
@@ -55,9 +56,14 @@ class _SearchOfBarNoteState extends State<SearchOfBarNote> {
         ),
         controller: _searchController,
         decoration: InputDecoration(
-          prefixIcon: focusNode.hasFocus
+          prefixIcon: isShowIconClose
               ? IconButton(
                   onPressed: () {
+                    setState(() {
+                      setState(() {
+                        isShowIconClose = false;
+                      });
+                    });
                     _searchController.clear();
                     BlocProvider.of<NoteCubit>(context).getSearchtext(text: '');
                   },
@@ -79,9 +85,21 @@ class _SearchOfBarNoteState extends State<SearchOfBarNote> {
           ),
         ),
         onSubmitted: (value) {
-          setState(() {});
+          setState(() {
+            isShowIconClose = false;
+          });
         },
         onChanged: (value) {
+          if (_searchController.text.isEmpty) {
+            setState(() {
+              isShowIconClose = false;
+            });
+          } else {
+            setState(() {
+              isShowIconClose = true;
+            });
+          }
+
           BlocProvider.of<NoteCubit>(context).getSearchtext(text: value);
         },
         textDirection: _currentTextDirection,

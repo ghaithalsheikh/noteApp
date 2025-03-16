@@ -201,7 +201,7 @@ class _TaskAddState extends State<TaskAdd> {
                               showDateTimePicker();
                             },
                             child: Text(
-                              'set reminder',
+                              'ضبط التذكير',
                               style: TextStyle(color: Colors.blue),
                             ))
                         : Row(
@@ -230,12 +230,12 @@ class _TaskAddState extends State<TaskAdd> {
                               tapTargetSize: MaterialTapTargetSize
                                   .shrinkWrap, // Shrink wrap
                             ),
-                            child: Text('Done'),
+                            child: Text('تم'),
                             onPressed: () {
                               addTask();
                             },
                           )
-                        : Text('Done')
+                        : Text('تم')
                   ],
                 )
               ],
